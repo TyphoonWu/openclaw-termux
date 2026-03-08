@@ -20,3 +20,4 @@ android/app/src/main/jniLibs/
 .idea/
 .vscode/
 *.swp
+.flutter-plugins-dependencies

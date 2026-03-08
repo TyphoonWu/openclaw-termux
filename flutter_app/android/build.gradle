@@ -11,11 +11,17 @@ subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
     // Provide flutter compilation defaults for plugins whose build.gradle
     // references flutter.compileSdkVersion before the Flutter tooling injects it.
+    afterEvaluate { proj ->
+        if (proj.plugins.hasPlugin('com.android.library') ||
+            proj.plugins.hasPlugin('com.android.application')) {
+            proj.android.ndkVersion = flutter.ndkVersion
+        }
+    }
     if (project.name != "app") {
         project.ext.set("flutter", [
-            compileSdkVersion: 35,
+            compileSdkVersion: sdk.version,
             minSdkVersion: 29,
-            targetSdkVersion: 36
+            targetSdkVersion: 37
         ])
     }
 }
