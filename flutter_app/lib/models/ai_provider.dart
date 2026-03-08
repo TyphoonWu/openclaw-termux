@@ -23,6 +23,23 @@ class AiProvider {
     required this.apiKeyHint,
   });
 
+  static const qwendashscope = AiProvider(
+    id: 'qwen',
+    name: 'Qwen DashScope',
+    description: 'Alibaba Qwen models',
+    icon: Icons.chat,
+    color: Color(0xFF10A37F),
+    baseUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
+    defaultModels: [
+      'qwen3.5-plus',
+      'qwen-turbo',
+      'qwen-plus',
+      'qwen3.5-flash',
+      'qwen3.5-35b-a3b',
+    ],
+    apiKeyHint: 'sk-...',
+  );
+
   static const anthropic = AiProvider(
     id: 'anthropic',
     name: 'Anthropic',
@@ -135,5 +152,14 @@ class AiProvider {
   );
 
   /// All available AI providers.
-  static const all = [anthropic, openai, google, openrouter, nvidia, deepseek, xai];
+  static const all = [
+    qwendashscope,
+    anthropic,
+    openai,
+    google,
+    openrouter,
+    nvidia,
+    deepseek,
+    xai
+  ];
 }

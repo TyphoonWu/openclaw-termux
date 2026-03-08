@@ -31,7 +31,8 @@ class _ProviderDetailScreenState extends State<ProviderDetailScreen> {
   bool _saving = false;
   bool _removing = false;
 
-  bool get _isConfigured => widget.existingApiKey != null && widget.existingApiKey!.isNotEmpty;
+  bool get _isConfigured =>
+      widget.existingApiKey != null && widget.existingApiKey!.isNotEmpty;
 
   /// Returns the effective model name to save.
   String get _effectiveModel =>
@@ -40,10 +41,12 @@ class _ProviderDetailScreenState extends State<ProviderDetailScreen> {
   @override
   void initState() {
     super.initState();
-    _apiKeyController = TextEditingController(text: widget.existingApiKey ?? '');
+    _apiKeyController =
+        TextEditingController(text: widget.existingApiKey ?? '');
     _customModelController = TextEditingController();
 
-    final existing = widget.existingModel ?? widget.provider.defaultModels.first;
+    final existing =
+        widget.existingModel ?? widget.provider.defaultModels.first;
     if (widget.provider.defaultModels.contains(existing)) {
       _selectedModel = existing;
     } else {
@@ -86,7 +89,9 @@ class _ProviderDetailScreenState extends State<ProviderDetailScreen> {
       );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${widget.provider.name} configured and activated')),
+          SnackBar(
+              content:
+                  Text('${widget.provider.name} configured and activated')),
         );
         Navigator.of(context).pop(true);
       }
@@ -106,7 +111,8 @@ class _ProviderDetailScreenState extends State<ProviderDetailScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text('Remove ${widget.provider.name}?'),
-        content: const Text('This will delete the API key and deactivate the model.'),
+        content: const Text(
+            'This will delete the API key and deactivate the model.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
@@ -124,7 +130,8 @@ class _ProviderDetailScreenState extends State<ProviderDetailScreen> {
 
     setState(() => _removing = true);
     try {
-      await ProviderConfigService.removeProviderConfig(provider: widget.provider);
+      await ProviderConfigService.removeProviderConfig(
+          provider: widget.provider);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('${widget.provider.name} removed')),
@@ -166,7 +173,8 @@ class _ProviderDetailScreenState extends State<ProviderDetailScreen> {
                       color: iconBg,
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Icon(widget.provider.icon, color: widget.provider.color),
+                    child: Icon(widget.provider.icon,
+                        color: widget.provider.color),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
@@ -198,7 +206,8 @@ class _ProviderDetailScreenState extends State<ProviderDetailScreen> {
           // API Key
           Text(
             'API Key',
-            style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+            style: theme.textTheme.titleSmall
+                ?.copyWith(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 8),
           TextField(
@@ -207,7 +216,8 @@ class _ProviderDetailScreenState extends State<ProviderDetailScreen> {
             decoration: InputDecoration(
               hintText: widget.provider.apiKeyHint,
               suffixIcon: IconButton(
-                icon: Icon(_obscureKey ? Icons.visibility_off : Icons.visibility),
+                icon:
+                    Icon(_obscureKey ? Icons.visibility_off : Icons.visibility),
                 onPressed: () => setState(() => _obscureKey = !_obscureKey),
               ),
             ),
@@ -217,7 +227,8 @@ class _ProviderDetailScreenState extends State<ProviderDetailScreen> {
           // Model selection
           Text(
             'Model',
-            style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+            style: theme.textTheme.titleSmall
+                ?.copyWith(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 8),
           DropdownButtonFormField<String>(
@@ -260,7 +271,8 @@ class _ProviderDetailScreenState extends State<ProviderDetailScreen> {
                 ? const SizedBox(
                     height: 20,
                     width: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                    child: CircularProgressIndicator(
+                        strokeWidth: 2, color: Colors.white),
                   )
                 : const Text('Save & Activate'),
           ),

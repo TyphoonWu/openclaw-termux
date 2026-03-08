@@ -141,11 +141,13 @@ class _SshScreenState extends State<SshScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.vpn_key, size: 64, color: theme.colorScheme.onSurfaceVariant),
+            Icon(Icons.vpn_key,
+                size: 64, color: theme.colorScheme.onSurfaceVariant),
             const SizedBox(height: 16),
             Text(
               'OpenSSH not installed',
-              style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+              style: theme.textTheme.titleMedium
+                  ?.copyWith(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 8),
             Text(
@@ -192,13 +194,17 @@ class _SshScreenState extends State<SshScreen> {
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: (_running ? AppColors.statusGreen : AppColors.statusGrey)
+                        color: (_running
+                                ? AppColors.statusGreen
+                                : AppColors.statusGrey)
                             .withAlpha(25),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Icon(
                         _running ? Icons.check_circle : Icons.cancel,
-                        color: _running ? AppColors.statusGreen : AppColors.statusGrey,
+                        color: _running
+                            ? AppColors.statusGreen
+                            : AppColors.statusGrey,
                         size: 20,
                       ),
                     ),
@@ -231,7 +237,8 @@ class _SshScreenState extends State<SshScreen> {
                               ? const SizedBox(
                                   height: 20,
                                   width: 20,
-                                  child: CircularProgressIndicator(strokeWidth: 2),
+                                  child:
+                                      CircularProgressIndicator(strokeWidth: 2),
                                 )
                               : const Text('Stop Server'),
                         )
@@ -327,12 +334,21 @@ class _SshScreenState extends State<SshScreen> {
                     ),
                   ),
                   const SizedBox(height: 8),
+                  /**
+                  PC connection:
+                  ssh-keygen -R "[$ip]:$port"
+                  ssh root@$ip -p $port
+                   */
                   for (final ip in _ips) ...[
+                    _commandRow(theme, isDark, 'ssh-keygen -R "[$ip]:$port"'),
                     _commandRow(theme, isDark, 'ssh root@$ip -p $port'),
                     const SizedBox(height: 8),
                   ],
-                  if (_ips.isEmpty)
+                  if (_ips.isEmpty) ...[
+                    _commandRow(
+                        theme, isDark, 'ssh-keygen -R "[<device-ip>]:$port"'),
                     _commandRow(theme, isDark, 'ssh root@<device-ip> -p $port'),
+                  ],
                 ],
               ),
             ),
