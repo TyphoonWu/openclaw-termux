@@ -430,6 +430,15 @@ class MainActivity : FlutterActivity() {
                 "getExternalStoragePath" -> {
                     result.success(Environment.getExternalStorageDirectory().absolutePath)
                 }
+                "getDeviceTimeZoneId" -> {
+                    try {
+                        // Returns IANA timezone ID like "Asia/Shanghai"
+                        val tz = java.util.TimeZone.getDefault().id
+                        result.success(tz)
+                    } catch (e: Exception) {
+                        result.success("Etc/UTC")
+                    }
+                }
                 "readRootfsFile" -> {
                     val path = call.argument<String>("path")
                     if (path != null) {

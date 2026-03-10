@@ -58,8 +58,12 @@ class BootstrapService {
         message: 'Setting up directories...',
       ));
       _updateSetupNotification('Setting up directories...', progress: 2);
-      try { await NativeBridge.setupDirs(); } catch (_) {}
-      try { await NativeBridge.writeResolv(); } catch (_) {}
+      try {
+        await NativeBridge.setupDirs();
+      } catch (_) {}
+      try {
+        await NativeBridge.writeResolv();
+      } catch (_) {}
 
       // Step 1: Download rootfs
       final arch = await NativeBridge.getArch();
@@ -101,7 +105,8 @@ class BootstrapService {
             final totalMb = (total / 1024 / 1024).toStringAsFixed(1);
             // Map download to 5-30% of overall progress
             final notifProgress = 5 + (progress * 25).round();
-            _updateSetupNotification('Downloading rootfs: $mb / $totalMb MB', progress: notifProgress);
+            _updateSetupNotification('Downloading rootfs: $mb / $totalMb MB',
+                progress: notifProgress);
             onProgress(SetupState(
               step: SetupStep.downloadingRootfs,
               progress: progress,
@@ -150,6 +155,73 @@ class BootstrapService {
         'echo permissions_fixed',
       );
 
+      // If device timezone indicates mainland China, switch apt mirror to TUNA.
+      // IMPORTANT: Ubuntu 22.04+ uses deb822 sources (*.sources). If we keep both
+      // /etc/apt/sources.list AND /etc/apt/sources.list.d/ubuntu.sources enabled,
+      // apt will treat them as duplicate entries and fail with "configured multiple times".
+      //
+      // Strategy:
+      // - Prefer deb822 file (ubuntu.sources) for modern Ubuntu.
+      // - Disable legacy /etc/apt/sources.list by truncating it to a harmless comment.
+      // - Also remove any extra *.list files that may exist from previous runs.
+      try {
+        final tzId = await NativeBridge.getDeviceTimeZoneId();
+        final safeTz = tzId.replaceAll("'", "");
+        if (safeTz == 'Asia/Shanghai' || safeTz == 'Asia/Urumqi') {
+          await NativeBridge.runInProot(
+            r'''bash -lc '
+set -e
+
+# Detect dpkg architecture (e.g. amd64/arm64/armhf)
+dpkgArch=$(dpkg --print-architecture 2>/dev/null || true)
+case "$dpkgArch" in
+  amd64) tunaBase="http://mirrors.tuna.tsinghua.edu.cn/ubuntu/" ;;
+  *)     tunaBase="http://mirrors.tuna.tsinghua.edu.cn/ubuntu-ports/" ;;
+esac
+
+# Detect Ubuntu codename
+if command -v lsb_release >/dev/null 2>&1; then
+  codename=$(lsb_release -cs)
+else
+  codename=$(grep VERSION_CODENAME /etc/os-release | cut -d= -f2 || true)
+fi
+if [ -z "$codename" ]; then
+  codename=$(grep UBUNTU_CODENAME /etc/os-release | cut -d= -f2 || true)
+fi
+if [ -z "$codename" ]; then codename=focal; fi
+
+# Clean any old list files that can cause duplicate targets
+mkdir -p /etc/apt/sources.list.d
+rm -f /etc/apt/sources.list.d/*.list
+
+# Disable legacy sources.list to avoid duplicates with deb822 sources
+cat > /etc/apt/sources.list <<EOF
+# Managed by OpenClaw: using deb822 source file /etc/apt/sources.list.d/ubuntu.sources
+EOF
+
+# Write deb822 source (preferred)
+cat > /etc/apt/sources.list.d/ubuntu.sources <<EOF
+## Ubuntu security updates. Aside from URIs and Suites,
+## this should mirror your choices in the previous section.
+Types: deb
+URIs: $tunaBase
+Suites: $codename $codename-updates $codename-backports $codename-security
+Components: main universe restricted multiverse
+Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
+EOF
+
+echo tuna_mirror_configured_for_$codename
+' ''',
+          );
+        }
+      } catch (e) {
+        _stopSetupService();
+        onProgress(SetupState(
+          step: SetupStep.error,
+          error: 'Setup apt source list failed: $e',
+        ));
+      }
+
       // --- Install base packages via apt-get (like Termux proot-distro) ---
       // Now that our proot matches Termux exactly (env -i, clean host env,
       // proper flags), dpkg works normally. No need for Java-side deb
@@ -187,6 +259,28 @@ class BootstrapService {
         'ca-certificates git python3 make g++ curl wget',
       );
 
+      // After apt installs dependencies (including tzdata), set timezone based on
+      // the device system timezone to match user's locale. Fallback to UTC.
+      try {
+        final tzId = await NativeBridge.getDeviceTimeZoneId();
+        final safeTz = tzId.replaceAll("'", "");
+        await NativeBridge.runInProot(
+          'if [ -f "/usr/share/zoneinfo/$safeTz" ]; then '
+          'ln -sf "/usr/share/zoneinfo/$safeTz" /etc/localtime && '
+          'echo "$safeTz" > /etc/timezone; '
+          'else '
+          'ln -sf /usr/share/zoneinfo/Etc/UTC /etc/localtime && '
+          'echo "Etc/UTC" > /etc/timezone; '
+          'fi',
+        );
+      } catch (e) {
+        _stopSetupService();
+        onProgress(SetupState(
+          step: SetupStep.error,
+          error: 'Setup timezone failed: $e',
+        ));
+      }
+
       // Git config (.gitconfig) is written by installBionicBypass() on the
       // Java side — directly to $rootfsDir/root/.gitconfig — rewrites
       // SSH→HTTPS for npm git deps (no SSH keys in proot).
@@ -213,7 +307,8 @@ class BootstrapService {
             final totalMb = (total / 1024 / 1024).toStringAsFixed(1);
             // Map Node download to 55-70% of overall
             final notifProgress = 55 + ((received / total) * 15).round();
-            _updateSetupNotification('Downloading Node.js: $mb / $totalMb MB', progress: notifProgress);
+            _updateSetupNotification('Downloading Node.js: $mb / $totalMb MB',
+                progress: notifProgress);
             onProgress(SetupState(
               step: SetupStep.installingNode,
               progress: progress,
@@ -282,7 +377,8 @@ class BootstrapService {
         progress: 0.9,
         message: 'Verifying OpenClaw...',
       ));
-      await NativeBridge.runInProot('openclaw --version || echo openclaw_installed');
+      await NativeBridge.runInProot(
+          'openclaw --version || echo openclaw_installed');
       onProgress(const SetupState(
         step: SetupStep.installingOpenClaw,
         progress: 1.0,

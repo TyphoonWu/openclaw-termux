@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_linkify/flutter_linkify.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../app.dart';
 import '../models/ai_provider.dart';
 import '../services/provider_config_service.dart';
@@ -22,6 +24,21 @@ class ProviderDetailScreen extends StatefulWidget {
 
 class _ProviderDetailScreenState extends State<ProviderDetailScreen> {
   static const _customModelSentinel = '__custom__';
+
+  Future<void> _openLink(LinkableElement link) async {
+    final uri = Uri.tryParse(link.url);
+    if (uri == null) return;
+
+    final ok = await launchUrl(
+      uri,
+      mode: LaunchMode.externalApplication,
+    );
+    if (!ok && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Could not open ${link.url}')),
+      );
+    }
+  }
 
   late final TextEditingController _apiKeyController;
   late final TextEditingController _customModelController;
@@ -188,10 +205,16 @@ class _ProviderDetailScreenState extends State<ProviderDetailScreen> {
                           ),
                         ),
                         const SizedBox(height: 4),
-                        Text(
-                          widget.provider.description,
+                        Linkify(
+                          text: widget.provider.description,
+                          onOpen: _openLink,
+                          options: const LinkifyOptions(looseUrl: true),
                           style: theme.textTheme.bodySmall?.copyWith(
                             color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                          linkStyle: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.primary,
+                            decoration: TextDecoration.underline,
                           ),
                         ),
                       ],

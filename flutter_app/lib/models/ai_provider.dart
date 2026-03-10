@@ -23,10 +23,11 @@ class AiProvider {
     required this.apiKeyHint,
   });
 
-  static const qwendashscope = AiProvider(
-    id: 'qwen',
-    name: 'Qwen DashScope',
-    description: 'Alibaba Qwen models',
+  static const alibabadashscope = AiProvider(
+    id: 'alibaba',
+    name: 'Alibaba DashScope',
+    description:
+        'Alibaba DashScope apiKey get from https://dashscope.console.aliyun.com/apiKey, Login with Taobao account',
     icon: Icons.chat,
     color: Color(0xFF10A37F),
     baseUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
@@ -157,7 +158,7 @@ class AiProvider {
 
   /// All available AI providers.
   static const all = [
-    qwendashscope,
+    alibabadashscope,
     anthropic,
     openai,
     google,
