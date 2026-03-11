@@ -48,7 +48,7 @@ class MainActivity : FlutterActivity() {
         val nativeLibDir = applicationContext.applicationInfo.nativeLibraryDir
 
         bootstrapManager = BootstrapManager(applicationContext, filesDir, nativeLibDir)
-        processManager = ProcessManager(filesDir, nativeLibDir)
+        processManager = ProcessManager(filesDir, nativeLibDir, applicationContext)
 
         // Ensure directories and resolv.conf exist on every app start.
         // Android may clear filesDir during APK update (#40).
@@ -70,6 +70,9 @@ class MainActivity : FlutterActivity() {
                 }
                 "getFilesDir" -> {
                     result.success(filesDir)
+                }
+                "getExternalFilesDir" -> {
+                    result.success(applicationContext.getExternalFilesDir(null)?.absolutePath ?: filesDir)
                 }
                 "getNativeLibDir" -> {
                     result.success(nativeLibDir)
@@ -469,6 +472,16 @@ class MainActivity : FlutterActivity() {
                     } else {
                         result.error("INVALID_ARGS", "path and content required", null)
                     }
+                }
+                "setupWorkspaceSymlink" -> {
+                    Thread {
+                        try {
+                            bootstrapManager.setupWorkspaceSymlink()
+                            runOnUiThread { result.success(true) }
+                        } catch (e: Exception) {
+                            runOnUiThread { result.error("WORKSPACE_SETUP_ERROR", e.message, null) }
+                        }
+                    }.start()
                 }
                 "bringToForeground" -> {
                     try {

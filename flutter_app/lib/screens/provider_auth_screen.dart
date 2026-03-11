@@ -119,17 +119,17 @@ class _ProviderAuthScreenState extends State<ProviderAuthScreen> {
       onboardingArgs.removeLast(); // remove '-l'
       onboardingArgs.removeLast(); // remove '/bin/bash'
 
-      const cmd =
-          'openclaw onboard --accept-risk --flow quickstart --reset-scope full --reset '
-          '--auth-choice qwen-portal --skip-daemon --skip-channels --skip-health '
-          '--skip-skills --skip-ui --no-install-daemon';
+      const enableAuthPlugin = 'openclaw plugins enable qwen-portal-auth';
+      const authLogin =
+          'openclaw models auth login --provider qwen-portal --set-default';
 
       onboardingArgs.addAll([
         '/bin/bash',
         '-lc',
         'echo "=== Provider Auth (Qwen Portal) ===" && '
             'echo "" && '
-            '$cmd; '
+            '$enableAuthPlugin && '
+            '$authLogin && '
             'echo "" && echo "Provider auth flow complete! You can close this screen."',
       ]);
 

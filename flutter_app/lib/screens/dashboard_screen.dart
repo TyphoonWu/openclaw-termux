@@ -128,15 +128,6 @@ class DashboardScreen extends StatelessWidget {
               ),
             ),
             StatusCard(
-              title: 'Provider Auth',
-              subtitle: 'Authenticate via Qwen portal (openclaw onboard)',
-              icon: Icons.vpn_key,
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const ProviderAuthScreen()),
-              ),
-            ),
-            StatusCard(
               title: 'AI Providers',
               subtitle: 'Configure models and API keys',
               icon: Icons.model_training,

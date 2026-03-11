@@ -294,7 +294,7 @@ echo tuna_mirror_configured_for_$codename
       // --- Install Node.js via binary tarball ---
       // Download directly from nodejs.org (bypasses curl/gpg/NodeSource
       // which fail inside proot). Includes node + npm + corepack.
-      final nodeTarUrl = AppConstants.getNodeTarballUrl(arch);
+      final nodeTarUrl = AppConstants.getNodeTarballUrl(safeTz, arch);
       final nodeTarPath = '$filesDir/tmp/nodejs.tar.xz';
 
       onProgress(const SetupState(
@@ -399,6 +399,11 @@ echo tuna_mirror_configured_for_$codename
         progress: 0.9,
         message: 'OpenClaw installed',
       ));
+
+      // Setup workspace symlink to external files dir for persistent storage
+      try {
+        await NativeBridge.setupWorkspaceSymlink();
+      } catch (_) {}
 
       try {
         await NativeBridge.runInProot(

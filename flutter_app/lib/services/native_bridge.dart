@@ -17,6 +17,10 @@ class NativeBridge {
     return await _channel.invokeMethod('getFilesDir');
   }
 
+  static Future<String> getExternalFilesDir() async {
+    return await _channel.invokeMethod('getExternalFilesDir');
+  }
+
   static Future<String> getNativeLibDir() async {
     return await _channel.invokeMethod('getNativeLibDir');
   }
@@ -180,6 +184,10 @@ class NativeBridge {
   static Future<bool> writeRootfsFile(String path, String content) async {
     return await _channel
         .invokeMethod('writeRootfsFile', {'path': path, 'content': content});
+  }
+
+  static Future<bool> setupWorkspaceSymlink() async {
+    return await _channel.invokeMethod('setupWorkspaceSymlink');
   }
 
   // SSH Service

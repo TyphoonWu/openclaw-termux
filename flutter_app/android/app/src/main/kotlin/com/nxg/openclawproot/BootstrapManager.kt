@@ -392,6 +392,80 @@ class BootstrapManager(
     }
 
     /**
+     * Create symlink from /root/.openclaw/workspace to external files dir.
+     * This allows OpenClaw workspace to persist in external storage.
+     * Called after onboarding to set up persistent workspace storage.
+     * 
+     * Logic:
+     * - workspaceDir: Android external storage (/storage/emulated/0/Android/data/.../files/openclaw_workspace)
+     * - rootfsWorkspace: Ubuntu rootfs path (/root/.openclaw/workspace) - becomes a symlink
+     * 
+     * The symlink direction is: rootfsWorkspace -> /sdcard/openclaw_workspace
+     * So when openclaw writes to /root/.openclaw/workspace inside proot,
+     * data is actually stored in Android external storage.
+     * 
+     * IMPORTANT: Use /sdcard path instead of /storage/emulated/0 because:
+     * 1. /sdcard is bind-mounted by proot (ProcessManager.commonProotFlags)
+     * 2. Android restricts direct access to /storage/emulated/0/Android/data/
+     *    from within proot due to FUSE/sdcardfs permission issues
+     */
+    fun setupWorkspaceSymlink() {
+        val externalFilesDir = context.getExternalFilesDir(null)?.absolutePath
+            ?: return
+
+        val workspaceDir = File("$externalFilesDir/openclaw_workspace")
+        workspaceDir.mkdirs()
+
+        val rootfsWorkspace = File("$rootfsDir/root/.openclaw/workspace")
+        val workspacePath = rootfsWorkspace.toPath()
+
+        // Use /sdcard path which is bind-mounted by proot
+        // This path is accessible from within proot
+        val symlinkTarget = "/sdcard/openclaw_workspace"
+
+        // Check if it's already a symlink pointing to the correct location
+        val isCorrectSymlink = try {
+            java.nio.file.Files.isSymbolicLink(workspacePath) && 
+            java.nio.file.Files.readSymbolicLink(workspacePath).toString() == symlinkTarget
+        } catch (_: Exception) {
+            false
+        }
+
+        if (isCorrectSymlink) {
+            return // Already set up correctly
+        }
+
+        // Remove existing file/directory/symlink at rootfsWorkspace location
+        val isSymlink = try {
+            java.nio.file.Files.isSymbolicLink(workspacePath)
+        } catch (_: Exception) {
+            false
+        }
+
+        if (isSymlink) {
+            // Remove old symlink
+            rootfsWorkspace.delete()
+        } else if (rootfsWorkspace.exists() && rootfsWorkspace.isDirectory) {
+            // It's a real directory - migrate contents if empty, otherwise skip
+            if (rootfsWorkspace.list()?.isEmpty() == true) {
+                rootfsWorkspace.delete()
+            } else {
+                // Directory has content, skip symlink creation to preserve data
+                return
+            }
+        }
+
+        // Create symlink: rootfsWorkspace -> /sdcard/openclaw_workspace
+        // /sdcard is bind-mounted to /storage/emulated/0 by proot
+        try {
+            android.system.Os.symlink(symlinkTarget, rootfsWorkspace.absolutePath)
+        } catch (e: Exception) {
+            // Fallback: if symlink fails, the directory already exists from configureRootfs()
+            // Data will stay in rootfs instead of external storage
+        }
+    }
+
+    /**
      * Write configuration files that make the rootfs work correctly under proot.
      * Called automatically after extraction.
      */

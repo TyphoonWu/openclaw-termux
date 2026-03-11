@@ -14,7 +14,8 @@ import java.io.InputStreamReader
  */
 class ProcessManager(
     private val filesDir: String,
-    private val nativeLibDir: String
+    private val nativeLibDir: String,
+    private val context: android.content.Context? = null
 ) {
     private val rootfsDir get() = "$filesDir/rootfs/ubuntu"
     private val tmpDir get() = "$filesDir/tmp"
@@ -153,10 +154,28 @@ class ProcessManager(
                         sdcardLink.mkdirs()
                     }
                 }
-                flags + listOf(
+                
+                val extraFlags = mutableListOf(
                     "--bind=/storage:/storage",
                     "--bind=/storage/emulated/0:/sdcard"
                 )
+                
+                // Additional bind mount for openclaw workspace
+                // Android's FUSE/sdcardfs restricts access to /storage/emulated/0/Android/data/
+                // from within proot. Direct bind mount of the workspace directory bypasses this.
+                if (context != null) {
+                    val externalFilesDir = context.getExternalFilesDir(null)
+                    val workspaceDir = externalFilesDir?.let { File(it, "openclaw_workspace") }
+                    if (workspaceDir?.exists() == true) {
+                        // Ensure rootfs /sdcard/openclaw_workspace directory exists
+                        val rootfsWorkspaceDir = File("$rootfsDir/sdcard/openclaw_workspace")
+                        rootfsWorkspaceDir.mkdirs()
+                        // Add direct bind mount for workspace
+                        extraFlags.add("--bind=${workspaceDir.absolutePath}:/sdcard/openclaw_workspace")
+                    }
+                }
+                
+                flags + extraFlags
             } else {
                 flags
             }
