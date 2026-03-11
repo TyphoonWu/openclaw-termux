@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:math';
 import 'package:dio/dio.dart';
 import '../constants.dart';
 import '../models/setup_state.dart';
@@ -227,11 +226,11 @@ echo tuna_mirror_configured_for_$codename
       // Now that our proot matches Termux exactly (env -i, clean host env,
       // proper flags), dpkg works normally. No need for Java-side deb
       // extraction — let dpkg+tar handle it inside proot like Termux does.
-      _updateSetupNotification('Updating package lists...', progress: 48);
+      _updateSetupNotification('Updating package list...', progress: 48);
       onProgress(const SetupState(
         step: SetupStep.extractingRootfs,
         progress: 0.5,
-        message: 'Updating package lists...',
+        message: 'Updating package list...',
       ));
       await NativeBridge.runInProot('apt-get update -y');
 
@@ -379,7 +378,7 @@ echo tuna_mirror_configured_for_$codename
       _updateSetupNotification('Creating bin wrappers...', progress: 92);
       onProgress(const SetupState(
         step: SetupStep.installingOpenClaw,
-        progress: 0.7,
+        progress: 0.5,
         message: 'Creating bin wrappers...',
       ));
       // npm global install creates symlinks for bin entries, but symlinks
@@ -390,16 +389,26 @@ echo tuna_mirror_configured_for_$codename
       _updateSetupNotification('Verifying OpenClaw...', progress: 96);
       onProgress(const SetupState(
         step: SetupStep.installingOpenClaw,
-        progress: 0.9,
+        progress: 0.7,
         message: 'Verifying OpenClaw...',
       ));
       await NativeBridge.runInProot(
           'openclaw --version || echo openclaw_installed');
       onProgress(const SetupState(
         step: SetupStep.installingOpenClaw,
-        progress: 1.0,
+        progress: 0.9,
         message: 'OpenClaw installed',
       ));
+
+      try {
+        await NativeBridge.runInProot(
+            'openclaw onboard --accept-risk --non-interactive --gateway-auth token');
+        onProgress(const SetupState(
+          step: SetupStep.installingOpenClaw,
+          progress: 1.0,
+          message: 'OpenClaw onboard',
+        ));
+      } catch (_) {}
 
       // Step 5: Bionic Bypass already installed (before node verification)
       _updateSetupNotification('Setup complete!', progress: 100);

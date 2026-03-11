@@ -14,6 +14,7 @@ import 'web_dashboard_screen.dart';
 import 'logs_screen.dart';
 import 'packages_screen.dart';
 import 'providers_screen.dart';
+import 'provider_auth_screen.dart';
 import 'settings_screen.dart';
 import 'ssh_screen.dart';
 
@@ -88,7 +89,8 @@ class DashboardScreen extends StatelessWidget {
                           onPressed: () {
                             Clipboard.setData(ClipboardData(text: url!));
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Dashboard URL copied')),
+                              const SnackBar(
+                                  content: Text('Dashboard URL copied')),
                             );
                           },
                         ),
@@ -123,6 +125,15 @@ class DashboardScreen extends StatelessWidget {
               trailing: const Icon(Icons.chevron_right),
               onTap: () => Navigator.of(context).push(
                 MaterialPageRoute(builder: (_) => const ConfigureScreen()),
+              ),
+            ),
+            StatusCard(
+              title: 'Provider Auth',
+              subtitle: 'Authenticate via Qwen portal (openclaw onboard)',
+              icon: Icons.vpn_key,
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const ProviderAuthScreen()),
               ),
             ),
             StatusCard(

@@ -13,7 +13,7 @@ class ProviderConfigService {
 
   /// Read the current config and return a map with:
   /// - `activeModel`: the current primary model string (or null)
-  /// - `providers`: Map<providerId, {apiKey, model}> for configured providers
+  /// - `providers`: Map&lt;providerId, {apiKey, model}&gt; for configured providers
   static Future<Map<String, dynamic>> readConfig() async {
     try {
       final content = await NativeBridge.readRootfsFile(_configPath);
@@ -39,7 +39,8 @@ class ProviderConfigService {
       final providers = <String, dynamic>{};
       final modelsSection = config['models'] as Map<String, dynamic>?;
       if (modelsSection != null) {
-        final providerEntries = modelsSection['providers'] as Map<String, dynamic>?;
+        final providerEntries =
+            modelsSection['providers'] as Map<String, dynamic>?;
         if (providerEntries != null) {
           for (final entry in providerEntries.entries) {
             providers[entry.key] = entry.value;
@@ -119,8 +120,10 @@ fs.writeFileSync(p, JSON.stringify(c, null, 2));
 
     // Merge provider entry
     config['models'] ??= <String, dynamic>{};
-    (config['models'] as Map<String, dynamic>)['providers'] ??= <String, dynamic>{};
-    ((config['models'] as Map<String, dynamic>)['providers'] as Map<String, dynamic>)[providerId] = {
+    (config['models'] as Map<String, dynamic>)['providers'] ??=
+        <String, dynamic>{};
+    ((config['models'] as Map<String, dynamic>)['providers']
+        as Map<String, dynamic>)[providerId] = {
       'apiKey': apiKey,
       'baseUrl': baseUrl,
       'models': [model],
@@ -128,9 +131,13 @@ fs.writeFileSync(p, JSON.stringify(c, null, 2));
 
     // Set active model
     config['agents'] ??= <String, dynamic>{};
-    (config['agents'] as Map<String, dynamic>)['defaults'] ??= <String, dynamic>{};
-    ((config['agents'] as Map<String, dynamic>)['defaults'] as Map<String, dynamic>)['model'] ??= <String, dynamic>{};
-    (((config['agents'] as Map<String, dynamic>)['defaults'] as Map<String, dynamic>)['model'] as Map<String, dynamic>)['primary'] = model;
+    (config['agents'] as Map<String, dynamic>)['defaults'] ??=
+        <String, dynamic>{};
+    ((config['agents'] as Map<String, dynamic>)['defaults']
+        as Map<String, dynamic>)['model'] ??= <String, dynamic>{};
+    (((config['agents'] as Map<String, dynamic>)['defaults']
+            as Map<String, dynamic>)['model']
+        as Map<String, dynamic>)['primary'] = model;
 
     const encoder = JsonEncoder.withIndent('  ');
     await NativeBridge.writeRootfsFile(_configPath, encoder.convert(config));

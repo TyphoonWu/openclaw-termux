@@ -7,7 +7,7 @@ import '../models/optional_package.dart';
 import '../providers/setup_provider.dart';
 import '../services/package_service.dart';
 import '../widgets/progress_step.dart';
-import 'onboarding_screen.dart';
+import 'provider_auth_screen.dart';
 import 'package_install_screen.dart';
 
 class SetupWizardScreen extends StatefulWidget {
@@ -94,13 +94,16 @@ class _SetupWizardScreenState extends State<SetupWizardScreen> {
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Icon(Icons.error_outline, color: theme.colorScheme.error),
+                            Icon(Icons.error_outline,
+                                color: theme.colorScheme.error),
                             const SizedBox(width: 8),
                             Expanded(
                               child: SingleChildScrollView(
                                 child: Text(
                                   state.error ?? 'Unknown error',
-                                  style: TextStyle(color: theme.colorScheme.onErrorContainer),
+                                  style: TextStyle(
+                                      color:
+                                          theme.colorScheme.onErrorContainer),
                                 ),
                               ),
                             ),
@@ -114,7 +117,7 @@ class _SetupWizardScreenState extends State<SetupWizardScreen> {
                     SizedBox(
                       width: double.infinity,
                       child: FilledButton.icon(
-                        onPressed: () => _goToOnboarding(context),
+                        onPressed: () => _goToOnAuth(context),
                         icon: const Icon(Icons.arrow_forward),
                         label: const Text('Configure API Keys'),
                       ),
@@ -208,7 +211,8 @@ class _SetupWizardScreenState extends State<SetupWizardScreen> {
     );
   }
 
-  Widget _buildPackageTile(ThemeData theme, OptionalPackage package, bool isDark) {
+  Widget _buildPackageTile(
+      ThemeData theme, OptionalPackage package, bool isDark) {
     final installed = _pkgStatuses[package.id] ?? false;
     final iconBg = isDark ? AppColors.darkSurfaceAlt : const Color(0xFFF3F4F6);
 
@@ -222,7 +226,8 @@ class _SetupWizardScreenState extends State<SetupWizardScreen> {
             color: iconBg,
             borderRadius: BorderRadius.circular(10),
           ),
-          child: Icon(package.icon, color: theme.colorScheme.onSurfaceVariant, size: 22),
+          child: Icon(package.icon,
+              color: theme.colorScheme.onSurfaceVariant, size: 22),
         ),
         title: Row(
           children: [
@@ -231,8 +236,7 @@ class _SetupWizardScreenState extends State<SetupWizardScreen> {
             if (installed) ...[
               const SizedBox(width: 8),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
                 decoration: BoxDecoration(
                   color: AppColors.statusGreen.withAlpha(25),
                   borderRadius: BorderRadius.circular(8),
@@ -257,10 +261,10 @@ class _SetupWizardScreenState extends State<SetupWizardScreen> {
     );
   }
 
-  void _goToOnboarding(BuildContext context) {
+  void _goToOnAuth(BuildContext context) {
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
-        builder: (_) => const OnboardingScreen(isFirstRun: true),
+        builder: (_) => const ProviderAuthScreen(isFirstRun: true),
       ),
     );
   }
