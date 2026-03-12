@@ -192,20 +192,21 @@ class _SetupWizardScreenState extends State<SetupWizardScreen> {
             isComplete: true,
           ),
           const SizedBox(height: 24),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: Text(
-              'OPTIONAL PACKAGES',
-              style: theme.textTheme.labelSmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 1.2,
-              ),
-            ),
-          ),
-          const SizedBox(height: 8),
-          for (final pkg in OptionalPackage.all)
-            _buildPackageTile(theme, pkg, isDark),
+          // To make wizard setup simple, don't include optional packages in the main flow. Instead, show them as separate cards after setup completes.
+          // Padding(
+          //   padding: const EdgeInsets.symmetric(horizontal: 8),
+          //   child: Text(
+          //     'OPTIONAL PACKAGES',
+          //     style: theme.textTheme.labelSmall?.copyWith(
+          //       color: theme.colorScheme.onSurfaceVariant,
+          //       fontWeight: FontWeight.w600,
+          //       letterSpacing: 1.2,
+          //     ),
+          //   ),
+          // ),
+          // const SizedBox(height: 8),
+          // for (final pkg in OptionalPackage.all)
+          //   _buildPackageTile(theme, pkg, isDark),
         ],
       ],
     );

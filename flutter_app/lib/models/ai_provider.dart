@@ -11,6 +11,7 @@ class AiProvider {
   final String baseUrl;
   final List<String> defaultModels;
   final String apiKeyHint;
+  final bool isAuthrequired;
 
   const AiProvider({
     required this.id,
@@ -21,6 +22,7 @@ class AiProvider {
     required this.baseUrl,
     required this.defaultModels,
     required this.apiKeyHint,
+    this.isAuthrequired = false,
   });
 
   static const alibabadashscope = AiProvider(
@@ -43,6 +45,19 @@ class AiProvider {
       'qwen3.5-397b-a17b'
     ],
     apiKeyHint: 'sk-...',
+  );
+
+  static const qwenauth = AiProvider(
+    id: 'qwenauth',
+    name: 'Qwen Auth',
+    description:
+        'Qwen Auth is a free service that provides access to Alibaba DashScope models with a simple token. No Taobao account required, but tokens are rate-limited and may expire.',
+    icon: Icons.chat,
+    color: Color(0xFF10A37F),
+    baseUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
+    defaultModels: ['qwen-turbo', 'qwen-plus'],
+    apiKeyHint: 'sk-...',
+    isAuthrequired: true,
   );
 
   static const anthropic = AiProvider(
@@ -159,6 +174,7 @@ class AiProvider {
   /// All available AI providers.
   static const all = [
     alibabadashscope,
+    qwenauth,
     anthropic,
     openai,
     google,
