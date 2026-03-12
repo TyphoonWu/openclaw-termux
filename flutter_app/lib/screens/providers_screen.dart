@@ -3,6 +3,7 @@ import '../app.dart';
 import '../models/ai_provider.dart';
 import '../services/provider_config_service.dart';
 import 'provider_detail_screen.dart';
+import 'provider_auth_screen.dart';
 
 /// Lists all AI providers with their configuration status.
 class ProvidersScreen extends StatefulWidget {
@@ -36,15 +37,22 @@ class _ProvidersScreenState extends State<ProvidersScreen> {
 
   Future<void> _openProvider(AiProvider provider) async {
     final providerConfig = _providers[provider.id] as Map<String, dynamic>?;
-    final result = await Navigator.of(context).push<bool>(
-      MaterialPageRoute(
-        builder: (_) => ProviderDetailScreen(
-          provider: provider,
-          existingApiKey: providerConfig?['apiKey'] as String?,
-          existingModel: _activeModel,
+    bool? result;
+    if (provider.isAuthrequired == true) {
+      result = await Navigator.of(context).push<bool>(
+        MaterialPageRoute(builder: (_) => const ProviderAuthScreen()),
+      );
+    } else {
+      result = await Navigator.of(context).push<bool>(
+        MaterialPageRoute(
+          builder: (_) => ProviderDetailScreen(
+            provider: provider,
+            existingApiKey: providerConfig?['apiKey'] as String?,
+            existingModel: _activeModel,
+          ),
         ),
-      ),
-    );
+      );
+    }
     if (result == true) {
       _refresh();
     }
@@ -55,8 +63,9 @@ class _ProvidersScreenState extends State<ProvidersScreen> {
     if (!isConfigured) return '';
     // Check if the active model belongs to this provider
     if (_activeModel != null) {
-      final isActive = provider.defaultModels.any((m) => _activeModel!.contains(m)) ||
-          _activeModel!.contains(provider.id);
+      final isActive =
+          provider.defaultModels.any((m) => _activeModel!.contains(m)) ||
+              _activeModel!.contains(provider.id);
       if (isActive) return 'Active';
     }
     return 'Configured';

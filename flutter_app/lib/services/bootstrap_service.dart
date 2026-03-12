@@ -294,7 +294,7 @@ echo tuna_mirror_configured_for_$codename
       // --- Install Node.js via binary tarball ---
       // Download directly from nodejs.org (bypasses curl/gpg/NodeSource
       // which fail inside proot). Includes node + npm + corepack.
-      final nodeTarUrl = AppConstants.getNodeTarballUrl(arch);
+      final nodeTarUrl = AppConstants.getNodeTarballUrl(safeTz, arch);
       final nodeTarPath = '$filesDir/tmp/nodejs.tar.xz';
 
       onProgress(const SetupState(

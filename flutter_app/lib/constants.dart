@@ -17,9 +17,12 @@ class AppConstants {
   // NextGenX
   static const String orgName = 'NextGenX';
   static const String orgEmail = 'nxgextra@gmail.com';
-  static const String instagramUrl = 'https://www.instagram.com/nexgenxplorer_nxg';
-  static const String youtubeUrl = 'https://youtube.com/@nexgenxplorer?si=UG-wBC8UIyeT4bbw';
-  static const String playStoreUrl = 'https://play.google.com/store/apps/dev?id=8262374975871504599';
+  static const String instagramUrl =
+      'https://www.instagram.com/nexgenxplorer_nxg';
+  static const String youtubeUrl =
+      'https://youtube.com/@nexgenxplorer?si=UG-wBC8UIyeT4bbw';
+  static const String playStoreUrl =
+      'https://play.google.com/store/apps/dev?id=8262374975871504599';
 
   static const String gatewayHost = '127.0.0.1';
   static const int gatewayPort = 18789;
@@ -36,8 +39,19 @@ class AppConstants {
   static const String nodeVersion = '22.13.1';
   static const String nodeBaseUrl =
       'https://nodejs.org/dist/v$nodeVersion/node-v$nodeVersion-linux-';
+  static const String nodeTsinghuaBaseUrl =
+      'https://mirrors.tuna.tsinghua.edu.cn/nodejs-release/v$nodeVersion/node-v$nodeVersion-linux-';
 
-  static String getNodeTarballUrl(String arch) {
+  static String getNodeTarballUrl(String safeTz, String arch) {
+    if (safeTz == 'Asia/Shanghai' || safeTz == 'Asia/Urumqi') {
+      // Use Tsinghua mirror for users in China (bypasses DNS issues with nodejs.org)
+      return switch (arch) {
+        'aarch64' => '${nodeTsinghuaBaseUrl}arm64.tar.xz',
+        'arm' => '${nodeTsinghuaBaseUrl}armv7l.tar.xz',
+        'x86_64' => '${nodeTsinghuaBaseUrl}x64.tar.xz',
+        _ => '${nodeTsinghuaBaseUrl}arm64.tar.xz',
+      };
+    }
     switch (arch) {
       case 'aarch64':
         return '${nodeBaseUrl}arm64.tar.xz';
