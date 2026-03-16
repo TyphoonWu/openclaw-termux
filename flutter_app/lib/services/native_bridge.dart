@@ -208,6 +208,10 @@ class NativeBridge {
     return await _channel.invokeMethod('bringToForeground');
   }
 
+  static Future<bool> openNodeActivity({String? url}) async {
+    return await _channel.invokeMethod('openNodeActivity', {'url': url});
+  }
+
   static Future<bool> setRootPassword(String password) async {
     return await _channel
         .invokeMethod('setRootPassword', {'password': password});

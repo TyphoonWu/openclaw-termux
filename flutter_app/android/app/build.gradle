@@ -1,7 +1,7 @@
 plugins {
     id "com.android.application"
-    id "kotlin-android"
     id "dev.flutter.flutter-gradle-plugin"
+    id "org.jetbrains.kotlin.android"
 }
 
 def localProperties = new Properties()
@@ -33,10 +33,8 @@ if (keystorePropertiesFile.exists()) {
 def hasKeystore = keystoreProperties.containsKey('storeFile') &&
     file(keystoreProperties['storeFile']).exists()
 
-def sdkVersion = localProperties.getProperty("sdk.version")
-if (sdkVersion == null) {
-    sdkVersion = "36.1.0"
-}
+// 恢复到 36 以满足 androidx.core:core:1.17.0 的要求
+def sdkVersion = "36"
 
 def ndkVersion = localProperties.getProperty("flutter.ndkVersion")
 if (ndkVersion == null) {
@@ -50,12 +48,12 @@ android {
     ndkVersion = ndkVersion
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_1_8
+        jvmTarget = '17'
     }
 
     defaultConfig {
@@ -88,7 +86,14 @@ android {
         }
     }
 
-    packagingOptions {
+    packaging {
+        resources {
+            excludes += '/META-INF/versions/9/OSGI-INF/MANIFEST.MF'
+            excludes += '/META-INF/LICENSE*'
+            excludes += '/META-INF/NOTICE*'
+            excludes += '/META-INF/AL2.0'
+            excludes += '/META-INF/LGPL2.1'
+        }
         jniLibs {
             useLegacyPackaging = true
         }
@@ -96,9 +101,11 @@ android {
 }
 
 dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'org.apache.commons:commons-compress:1.26.0'
     implementation 'org.tukaani:xz:1.9'
     implementation 'com.github.luben:zstd-jni:1.5.6-4@aar'
+    implementation project(":moduleClawNode")
 }
 
 flutter {

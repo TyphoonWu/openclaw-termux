@@ -5,8 +5,8 @@ import '../app.dart';
 import '../constants.dart';
 import '../models/gateway_state.dart';
 import '../providers/gateway_provider.dart';
-import '../screens/logs_screen.dart';
 import '../screens/web_dashboard_screen.dart';
+import '../services/native_bridge.dart';
 
 class GatewayControls extends StatelessWidget {
   const GatewayControls({super.key});
@@ -68,7 +68,8 @@ class GatewayControls extends StatelessWidget {
                         icon: const Icon(Icons.copy, size: 18),
                         tooltip: 'Copy URL',
                         onPressed: () {
-                          final url = state.dashboardUrl ?? AppConstants.gatewayUrl;
+                          final url =
+                              state.dashboardUrl ?? AppConstants.gatewayUrl;
                           Clipboard.setData(ClipboardData(text: url));
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
@@ -110,18 +111,21 @@ class GatewayControls extends StatelessWidget {
                         icon: const Icon(Icons.play_arrow),
                         label: const Text('Start Gateway'),
                       ),
-                    if (state.isRunning || state.status == GatewayStatus.starting)
+                    if (state.isRunning ||
+                        state.status == GatewayStatus.starting)
                       OutlinedButton.icon(
                         onPressed: () => provider.stop(),
                         icon: const Icon(Icons.stop),
                         label: const Text('Stop Gateway'),
                       ),
                     OutlinedButton.icon(
-                      onPressed: () => Navigator.of(context).push(
-                        MaterialPageRoute(builder: (_) => const LogsScreen()),
-                      ),
+                      onPressed: () async {
+                        final url =
+                            state.dashboardUrl ?? AppConstants.gatewayUrl;
+                        await NativeBridge.openNodeActivity(url: url);
+                      },
                       icon: const Icon(Icons.article_outlined),
-                      label: const Text('View Logs'),
+                      label: const Text('Open Activity'),
                     ),
                   ],
                 ),

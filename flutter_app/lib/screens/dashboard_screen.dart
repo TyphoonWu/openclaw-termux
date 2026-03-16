@@ -14,7 +14,6 @@ import 'web_dashboard_screen.dart';
 import 'logs_screen.dart';
 import 'packages_screen.dart';
 import 'providers_screen.dart';
-import 'provider_auth_screen.dart';
 import 'settings_screen.dart';
 import 'ssh_screen.dart';
 

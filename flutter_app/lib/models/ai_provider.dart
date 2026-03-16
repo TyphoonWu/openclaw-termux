@@ -12,6 +12,7 @@ class AiProvider {
   final List<String> defaultModels;
   final String apiKeyHint;
   final bool isAuthrequired;
+  final String api;
 
   const AiProvider({
     required this.id,
@@ -23,6 +24,7 @@ class AiProvider {
     required this.defaultModels,
     required this.apiKeyHint,
     this.isAuthrequired = false,
+    this.api = "",
   });
 
   static const alibabadashscope = AiProvider(
@@ -45,6 +47,7 @@ class AiProvider {
       'qwen3.5-397b-a17b'
     ],
     apiKeyHint: 'sk-...',
+    api: 'openai-completions',
   );
 
   static const qwenauth = AiProvider(
