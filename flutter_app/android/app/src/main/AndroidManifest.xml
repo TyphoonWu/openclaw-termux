@@ -28,15 +28,19 @@
 
     <application
         android:label="OpenClaw"
-        android:name="${applicationName}"
+        android:name="ai.openclaw.app.NodeApp"
         android:icon="@mipmap/ic_launcher"
         android:usesCleartextTraffic="true"
         android:requestLegacyExternalStorage="true"
         android:extractNativeLibs="true"
         android:allowBackup="true"
         android:fullBackupContent="@xml/backup_rules"
-        android:dataExtractionRules="@xml/data_extraction_rules">
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        tools:replace="android:label,android:name">
 
+        <activity
+            android:name="ai.openclaw.app.MainClawNodeActivity"
+            android:exported="true" />
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -52,6 +56,12 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="openclaw" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />

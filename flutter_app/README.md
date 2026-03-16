@@ -17,6 +17,3 @@ flutter doctor -v
 # build apk
 flutter build apk --release --split-per-abi
 ```
-
-## TODO
-1. 

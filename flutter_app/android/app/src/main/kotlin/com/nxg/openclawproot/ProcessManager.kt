@@ -146,7 +146,7 @@ class ProcessManager(
                 if (!sdcardLink.exists()) {
                     try {
                         Runtime.getRuntime().exec(
-                            arrayOf("ln", "-sf", "/storage/emulated/0/Download", "$rootfsDir/root/sdcard")
+                            arrayOf("ln", "-sf", "/storage/emulated/0/Download", "$rootfsDir/sdcard")
                         ).waitFor()
                     } catch (_: Exception) {
                         // Fallback: create as directory if symlink fails
@@ -155,7 +155,7 @@ class ProcessManager(
                 }
                 flags + listOf(
                     "--bind=/storage:/storage",
-                    "--bind=/storage/emulated/0/Download/:/root/sdcard"
+                    "--bind=/storage/emulated/0/Download/:/sdcard"
                 )
             } else {
                 flags

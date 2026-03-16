@@ -30,6 +30,8 @@ import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodChannel
+import ai.openclaw.app.MainClawNodeActivity
+import ai.openclaw.app.NodeApp
 
 class MainActivity : FlutterActivity() {
     private val CHANNEL = "com.nxg.openclawproot/native"
@@ -479,6 +481,21 @@ class MainActivity : FlutterActivity() {
                         result.success(true)
                     } catch (e: Exception) {
                         result.error("FOREGROUND_ERROR", e.message, null)
+                    }
+                }
+                "openNodeActivity" -> {
+                    try {
+                        val url = call.argument<String>("url")
+                        val intent = Intent(applicationContext, MainClawNodeActivity::class.java).apply {
+                            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                            if (!url.isNullOrBlank()) {
+                                putExtra("dashboardUrl", url)
+                            }
+                        }
+                        applicationContext.startActivity(intent)
+                        result.success(true)
+                    } catch (e: Exception) {
+                        result.error("OPEN_NODE_ACTIVITY_ERROR", e.message, null)
                     }
                 }
                 "readSensor" -> {
