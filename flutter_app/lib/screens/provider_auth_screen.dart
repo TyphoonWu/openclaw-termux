@@ -424,6 +424,7 @@ class _ProviderAuthScreenState extends State<ProviderAuthScreen> {
                     if (url != null) {
                       final uri = Uri.tryParse(url);
                       if (uri != null) {
+                        setState(() => _urlDismissed = true);
                         launchUrl(uri, mode: LaunchMode.externalApplication);
                         return;
                       }
@@ -434,7 +435,6 @@ class _ProviderAuthScreenState extends State<ProviderAuthScreen> {
                         duration: Duration(seconds: 1),
                       ),
                     );
-                    setState(() => _urlDismissed = true);
                   },
                   child: const Text('Open'),
                 ),
@@ -521,17 +521,20 @@ class _ProviderAuthScreenState extends State<ProviderAuthScreen> {
             ),
           ],
           if (_finished)
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: SizedBox(
-                width: double.infinity,
-                child: FilledButton.icon(
-                  onPressed: widget.isFirstRun
-                      ? _goToDashboard
-                      : () => Navigator.of(context).pop(true),
-                  icon: Icon(
-                      widget.isFirstRun ? Icons.arrow_forward : Icons.check),
-                  label: Text(widget.isFirstRun ? 'Go to Dashboard' : 'Done'),
+            SafeArea(
+              top: false,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: FilledButton.icon(
+                    onPressed: widget.isFirstRun
+                        ? _goToDashboard
+                        : () => Navigator.of(context).pop(true),
+                    icon: Icon(
+                        widget.isFirstRun ? Icons.arrow_forward : Icons.check),
+                    label: Text(widget.isFirstRun ? 'Go to Dashboard' : 'Done'),
+                  ),
                 ),
               ),
             ),

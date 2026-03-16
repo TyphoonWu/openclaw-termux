@@ -51,7 +51,7 @@ class AiProvider {
   );
 
   static const qwenauth = AiProvider(
-    id: 'qwenauth',
+    id: 'qwen-portal',
     name: 'Qwen Auth',
     description:
         'Qwen Auth is a free service that provides access to Alibaba DashScope models with a simple token. No Taobao account required, but tokens are rate-limited and may expire.',
