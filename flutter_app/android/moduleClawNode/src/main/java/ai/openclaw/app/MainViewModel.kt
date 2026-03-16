@@ -9,6 +9,8 @@ import ai.openclaw.app.node.CanvasController
 import ai.openclaw.app.node.SmsManager
 import ai.openclaw.app.voice.VoiceConversationEntry
 import kotlinx.coroutines.flow.StateFlow
+import android.net.Uri
+import android.util.Log
 
 class MainViewModel(app: Application) : AndroidViewModel(app) {
   private val runtime: NodeRuntime = (app as NodeApp).runtime
@@ -71,6 +73,34 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
   val chatPendingToolCalls = runtime.chatPendingToolCalls
   val chatSessions = runtime.chatSessions
   val pendingRunCount: StateFlow<Int> = runtime.pendingRunCount
+
+  var initialManualHost: String? = null
+  var initialManualPort: String? = null
+  var initialGatewayToken: String? = null
+
+  fun processDashboardUrl(url: String) {
+      try {
+          // parse：http://host:port/#token=****
+          val uri = android.net.Uri.parse(url)
+          initialManualHost = uri.host
+          initialManualPort = uri.port.takeIf { it != -1 }?.toString() ?: "18789"
+
+          // get token from Fragment
+          val fragment = uri.fragment // 获取 "token=****"
+          if (fragment?.startsWith("token=") == true) {
+              initialGatewayToken = fragment.substringAfter("token=")
+          }
+
+          android.util.Log.d(
+              "OpenClawNode",
+              "Parsed URL - Host: $initialManualHost, Port: $initialManualPort, Token: ${
+                  initialGatewayToken?.take(5)
+              }..."
+          )
+      } catch (e: java.lang.Exception) {
+          android.util.Log.e("OpenClawNode", "Failed to parse dashboardUrl", e)
+      }
+  }
 
   fun setForeground(value: Boolean) {
     runtime.setForeground(value)

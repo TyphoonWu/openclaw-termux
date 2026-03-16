@@ -75,6 +75,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.Modifier
@@ -228,15 +229,29 @@ fun OnboardingFlow(viewModel: MainViewModel, modifier: Modifier = Modifier) {
   val persistedGatewayToken by viewModel.gatewayToken.collectAsState()
   val pendingTrust by viewModel.pendingGatewayTrust.collectAsState()
 
+  val hasUrlData = viewModel.initialManualHost != null
   var step by rememberSaveable { mutableStateOf(OnboardingStep.Welcome) }
   var setupCode by rememberSaveable { mutableStateOf("") }
   var gatewayUrl by rememberSaveable { mutableStateOf("") }
   var gatewayPassword by rememberSaveable { mutableStateOf("") }
-  var gatewayInputMode by rememberSaveable { mutableStateOf(GatewayInputMode.SetupCode) }
-  var gatewayAdvancedOpen by rememberSaveable { mutableStateOf(false) }
-  var manualHost by rememberSaveable { mutableStateOf("10.0.2.2") }
-  var manualPort by rememberSaveable { mutableStateOf("18789") }
+  var gatewayInputMode by rememberSaveable {
+      mutableStateOf(if (hasUrlData) GatewayInputMode.Manual else GatewayInputMode.SetupCode)
+  }
+  var gatewayAdvancedOpen by rememberSaveable {
+      mutableStateOf(hasUrlData)
+  }
+  var manualHost by rememberSaveable {
+      mutableStateOf(viewModel.initialManualHost ?: "10.0.2.2")
+  }
+  var manualPort by rememberSaveable {
+      mutableStateOf(viewModel.initialManualPort ?: "18789")
+  }
   var manualTls by rememberSaveable { mutableStateOf(false) }
+      LaunchedEffect(Unit) {
+      viewModel.initialGatewayToken?.let {
+          viewModel.setGatewayToken(it)
+      }
+  }
   var gatewayError by rememberSaveable { mutableStateOf<String?>(null) }
   var attemptedConnect by rememberSaveable { mutableStateOf(false) }
 

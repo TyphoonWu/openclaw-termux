@@ -21,6 +21,11 @@ class MainClawNodeActivity : ComponentActivity() {
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
+    val dashboardUrl = intent.getStringExtra("dashboardUrl")
+    android.util.Log.d("MainClawNodeActivity", "Activity received dashboardUrl: $dashboardUrl")
+    if (!dashboardUrl.isNullOrBlank()) {
+        viewModel.processDashboardUrl(dashboardUrl)
+    }
     WindowCompat.setDecorFitsSystemWindows(window, false)
     permissionRequester = PermissionRequester(this)
     viewModel.camera.attachLifecycleOwner(this)
