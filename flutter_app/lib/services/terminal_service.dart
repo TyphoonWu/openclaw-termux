@@ -140,7 +140,7 @@ class TerminalService {
     if (config['storageGranted'] == 'true') {
       args.addAll([
         '--bind=/storage:/storage',
-        '--bind=/storage/emulated/0/Download:/sdcard',
+        '--bind=/storage/emulated/0:/sdcard',
       ]);
     }
 

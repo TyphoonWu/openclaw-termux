@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import '../models/ai_provider.dart';
 import 'native_bridge.dart';
 
@@ -62,85 +63,56 @@ class ProviderConfigService {
     required String apiKey,
     required String model,
   }) async {
-    final providerJson = jsonEncode({
-      'apiKey': apiKey,
-      'baseUrl': provider.baseUrl,
-      'models': [model],
-    });
-    final modelJson = jsonEncode(model);
-    final providerIdJson = jsonEncode(provider.id);
-
-    final script = '''
-const fs = require("fs");
-const p = "$_configPath";
-let c = {};
-try { c = JSON.parse(fs.readFileSync(p, "utf8")); } catch {}
-if (!c.models) c.models = {};
-if (!c.models.providers) c.models.providers = {};
-c.models.providers[$providerIdJson] = $providerJson;
-if (!c.agents) c.agents = {};
-if (!c.agents.defaults) c.agents.defaults = {};
-if (!c.agents.defaults.model) c.agents.defaults.model = {};
-c.agents.defaults.model.primary = $modelJson;
-fs.mkdirSync(require("path").dirname(p), { recursive: true });
-fs.writeFileSync(p, JSON.stringify(c, null, 2));
-''';
-    try {
-      await NativeBridge.runInProot(
-        'node -e ${_shellEscape(script)}',
-        timeout: 15,
-      );
-    } catch (_) {
-      // Fallback: write config directly via NativeBridge file I/O
-      await _saveConfigDirect(
-        providerId: provider.id,
-        apiKey: apiKey,
-        baseUrl: provider.baseUrl,
-        model: model,
-      );
-    }
-  }
-
-  /// Direct file-write fallback that doesn't depend on proot or DNS.
-  static Future<void> _saveConfigDirect({
-    required String providerId,
-    required String apiKey,
-    required String baseUrl,
-    required String model,
-  }) async {
-    Map<String, dynamic> config = {};
-    try {
-      final content = await NativeBridge.readRootfsFile(_configPath);
-      if (content != null && content.isNotEmpty) {
-        config = jsonDecode(content) as Map<String, dynamic>;
-      }
-    } catch (_) {
-      // Start fresh
-    }
-
-    // Merge provider entry
-    config['models'] ??= <String, dynamic>{};
-    (config['models'] as Map<String, dynamic>)['providers'] ??=
-        <String, dynamic>{};
-    ((config['models'] as Map<String, dynamic>)['providers']
-        as Map<String, dynamic>)[providerId] = {
-      'apiKey': apiKey,
-      'baseUrl': baseUrl,
-      'models': [model],
+    // Dart Map/List -> jsonEncode。
+    final providerMap = <String, dynamic>{
+      "baseUrl": provider.baseUrl,
+      "apiKey": apiKey,
+      "models": [
+        {
+          "id": model,
+          "name": model,
+          "reasoning": false,
+          "input": ["text", "image"],
+          "cost": {
+            "input": 0,
+            "output": 0,
+            "cacheRead": 0,
+            "cacheWrite": 0,
+          },
+          "contextWindow": 200000,
+          "maxTokens": 8192,
+        }
+      ]
     };
 
-    // Set active model
-    config['agents'] ??= <String, dynamic>{};
-    (config['agents'] as Map<String, dynamic>)['defaults'] ??=
-        <String, dynamic>{};
-    ((config['agents'] as Map<String, dynamic>)['defaults']
-        as Map<String, dynamic>)['model'] ??= <String, dynamic>{};
-    (((config['agents'] as Map<String, dynamic>)['defaults']
-            as Map<String, dynamic>)['model']
-        as Map<String, dynamic>)['primary'] = model;
+    if (provider.api.trim().isNotEmpty) {
+      providerMap["api"] = provider.api;
+    }
 
-    const encoder = JsonEncoder.withIndent('  ');
-    await NativeBridge.writeRootfsFile(_configPath, encoder.convert(config));
+    final providerJson = jsonEncode(providerMap);
+
+    final commands = <String>[
+      'openclaw config set models.providers.${provider.id} --json \'$providerJson\'',
+      "openclaw models set '${provider.id}/$model'",
+      // 'openclaw gateway restart',
+    ];
+
+    try {
+      for (var i = 0; i < commands.length; i++) {
+        final cmd = commands[i];
+
+        if (kDebugMode) {
+          debugPrint(
+              '[ProviderConfigService] runInProot(${i + 1}/${commands.length}) cmd: $cmd');
+        }
+
+        await NativeBridge.runInProot(cmd);
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('[ProviderConfigService] Setup error: $e');
+      }
+    }
   }
 
   /// Remove a provider's config entry and clear the active model if it

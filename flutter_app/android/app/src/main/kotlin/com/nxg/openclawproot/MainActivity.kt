@@ -31,7 +31,6 @@ import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodChannel
 import ai.openclaw.app.MainClawNodeActivity
-import ai.openclaw.app.NodeApp
 
 class MainActivity : FlutterActivity() {
     private val CHANNEL = "com.nxg.openclawproot/native"
