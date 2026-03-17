@@ -111,11 +111,16 @@ class _TerminalToolbarState extends State<TerminalToolbar> {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final bgColor = isDark ? AppColors.darkBg : const Color(0xFFE0E0E0);
-    final btnColor = isDark ? AppColors.darkSurfaceAlt : const Color(0xFFEEEEEE);
+    final btnColor =
+        isDark ? AppColors.darkSurfaceAlt : const Color(0xFFEEEEEE);
     const activeColor = AppColors.accent;
     final textColor = isDark ? Colors.white70 : Colors.black87;
 
-    Widget keyButton(String label, {VoidCallback? onTap, String? sendData, bool active = false, double? width}) {
+    Widget keyButton(String label,
+        {VoidCallback? onTap,
+        String? sendData,
+        bool active = false,
+        double? width}) {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 1.5),
         child: Material(
@@ -128,7 +133,7 @@ class _TerminalToolbarState extends State<TerminalToolbar> {
               width: width,
               constraints: const BoxConstraints(minWidth: 36, minHeight: 34),
               alignment: Alignment.center,
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 6),
               child: Text(
                 label,
                 style: TextStyle(
@@ -165,36 +170,34 @@ class _TerminalToolbarState extends State<TerminalToolbar> {
 
     return Container(
       color: bgColor,
-      child: SafeArea(
-        top: false,
-        child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-          child: Row(
-            children: [
-              keyButton('ESC', sendData: '\x1b'),
-              keyButton('CTRL', onTap: _toggleCtrl, active: _ctrlActive),
-              keyButton('ALT', onTap: _toggleAlt, active: _altActive),
-              keyButton('TAB', sendData: '\t'),
-              keyButton('ENTER', sendData: '\r'),
-              const SizedBox(width: 4),
-              arrowButton(Icons.arrow_upward, '\x1b[A'),
-              arrowButton(Icons.arrow_downward, '\x1b[B'),
-              arrowButton(Icons.arrow_back, '\x1b[D'),
-              arrowButton(Icons.arrow_forward, '\x1b[C'),
-              const SizedBox(width: 4),
-              keyButton('HOME', sendData: '\x1b[H'),
-              keyButton('END', sendData: '\x1b[F'),
-              keyButton('PGUP', sendData: '\x1b[5~'),
-              keyButton('PGDN', sendData: '\x1b[6~'),
-              const SizedBox(width: 4),
-              keyButton('-', sendData: '-'),
-              keyButton('/', sendData: '/'),
-              keyButton('|', sendData: '|'),
-              keyButton('~', sendData: '~'),
-              keyButton('_', sendData: '_'),
-            ],
-          ),
+      padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 4),
+        child: Row(
+          children: [
+            keyButton('ESC', sendData: '\x1b'),
+            keyButton('CTRL', onTap: _toggleCtrl, active: _ctrlActive),
+            keyButton('ALT', onTap: _toggleAlt, active: _altActive),
+            keyButton('TAB', sendData: '\t'),
+            keyButton('ENTER', sendData: '\r'),
+            const SizedBox(width: 4),
+            arrowButton(Icons.arrow_upward, '\x1b[A'),
+            arrowButton(Icons.arrow_downward, '\x1b[B'),
+            arrowButton(Icons.arrow_back, '\x1b[D'),
+            arrowButton(Icons.arrow_forward, '\x1b[C'),
+            const SizedBox(width: 4),
+            keyButton('HOME', sendData: '\x1b[H'),
+            keyButton('END', sendData: '\x1b[F'),
+            keyButton('PGUP', sendData: '\x1b[5~'),
+            keyButton('PGDN', sendData: '\x1b[6~'),
+            const SizedBox(width: 4),
+            keyButton('-', sendData: '-'),
+            keyButton('/', sendData: '/'),
+            keyButton('|', sendData: '|'),
+            keyButton('~', sendData: '~'),
+            keyButton('_', sendData: '_'),
+          ],
         ),
       ),
     );

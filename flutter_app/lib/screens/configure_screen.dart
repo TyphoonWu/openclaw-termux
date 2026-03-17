@@ -60,8 +60,12 @@ class _ConfigureScreenState extends State<ConfigureScreen> {
     _pty = null;
     try {
       // Ensure dirs + resolv.conf exist before proot starts (#40).
-      try { await NativeBridge.setupDirs(); } catch (_) {}
-      try { await NativeBridge.writeResolv(); } catch (_) {}
+      try {
+        await NativeBridge.setupDirs();
+      } catch (_) {}
+      try {
+        await NativeBridge.writeResolv();
+      } catch (_) {}
       try {
         final filesDir = await NativeBridge.getFilesDir();
         const resolvContent = 'nameserver 8.8.8.8\nnameserver 8.8.4.4\n';
@@ -88,12 +92,13 @@ class _ConfigureScreenState extends State<ConfigureScreen> {
       configureArgs.removeLast(); // remove '-l'
       configureArgs.removeLast(); // remove '/bin/bash'
       configureArgs.addAll([
-        '/bin/bash', '-lc',
+        '/bin/bash',
+        '-lc',
         'echo "=== OpenClaw Configure ===" && '
-        'echo "Manage your gateway settings." && '
-        'echo "" && '
-        'openclaw configure; '
-        'echo "" && echo "Configuration complete! You can close this screen."',
+            'echo "Manage your gateway settings." && '
+            'echo "" && '
+            'openclaw configure; '
+            'echo "" && echo "Configuration complete! You can close this screen."',
       ]);
 
       _pty = Pty.start(
@@ -174,7 +179,8 @@ class _ConfigureScreenState extends State<ConfigureScreen> {
   }
 
   String? _extractUrl(String text) {
-    final clean = text.replaceAll(_boxDrawing, '').replaceAll(RegExp(r'\s+'), '');
+    final clean =
+        text.replaceAll(_boxDrawing, '').replaceAll(RegExp(r'\s+'), '');
     final parts = clean.split(RegExp(r'(?=https?://)'));
     String? best;
     for (final part in parts) {
@@ -250,7 +256,8 @@ class _ConfigureScreenState extends State<ConfigureScreen> {
   }
 
   Future<void> _takeScreenshot() async {
-    final path = await ScreenshotService.capture(_screenshotKey, prefix: 'configure');
+    final path =
+        await ScreenshotService.capture(_screenshotKey, prefix: 'configure');
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -326,7 +333,8 @@ class _ConfigureScreenState extends State<ConfigureScreen> {
                       Text(
                         _error!,
                         textAlign: TextAlign.center,
-                        style: TextStyle(color: Theme.of(context).colorScheme.error),
+                        style: TextStyle(
+                            color: Theme.of(context).colorScheme.error),
                       ),
                       const SizedBox(height: 16),
                       FilledButton.icon(
@@ -369,14 +377,17 @@ class _ConfigureScreenState extends State<ConfigureScreen> {
             ),
           ],
           if (_finished)
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: SizedBox(
-                width: double.infinity,
-                child: FilledButton.icon(
-                  onPressed: () => Navigator.of(context).pop(),
-                  icon: const Icon(Icons.check),
-                  label: const Text('Done'),
+            SafeArea(
+              top: false,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: FilledButton.icon(
+                    onPressed: () => Navigator.of(context).pop(),
+                    icon: const Icon(Icons.check),
+                    label: const Text('Done'),
+                  ),
                 ),
               ),
             ),

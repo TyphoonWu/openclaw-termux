@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../app.dart';
 import '../models/ai_provider.dart';
@@ -39,6 +40,28 @@ class _ProvidersScreenState extends State<ProvidersScreen> {
     final providerConfig = _providers[provider.id] as Map<String, dynamic>?;
     bool? result;
     if (provider.isAuthrequired == true) {
+      // If the current active model already belongs to this provider, don't open
+      // auth/config screen again.
+      if (kDebugMode) {
+        debugPrint(
+            '[ProvidersScreen] _activeModel=$_activeModel provider.id=${provider.id}');
+      }
+      if (_activeModel != null && _activeModel!.contains(provider.id)) {
+        if (!mounted) return;
+        await showDialog<void>(
+          context: context,
+          builder: (_) => AlertDialog(
+            title: Text('$_activeModel has been authed'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        );
+        return;
+      }
       result = await Navigator.of(context).push<bool>(
         MaterialPageRoute(builder: (_) => const ProviderAuthScreen()),
       );
