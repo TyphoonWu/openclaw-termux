@@ -62,8 +62,8 @@ class _ProviderDetailScreenState extends State<ProviderDetailScreen> {
         TextEditingController(text: widget.existingApiKey ?? '');
     _customModelController = TextEditingController();
 
-    final existing =
-        widget.existingModel ?? widget.provider.defaultModels.first;
+    final existing = widget.existingModel?.split("/")[1] ??
+        widget.provider.defaultModels.first;
     if (widget.provider.defaultModels.contains(existing)) {
       _selectedModel = existing;
     } else {
@@ -226,6 +226,23 @@ class _ProviderDetailScreenState extends State<ProviderDetailScreen> {
           ),
           const SizedBox(height: 24),
 
+          // Base URL (local-provider only)
+          if (widget.provider.id == 'local-provider') ...[
+            Text(
+              'Base Url',
+              style: theme.textTheme.titleSmall
+                  ?.copyWith(fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 8),
+            TextField(
+              controller: TextEditingController(text: widget.provider.baseUrl),
+              decoration: InputDecoration(
+                hintText: 'e.g. ${widget.provider.baseUrl}',
+              ),
+            ),
+            const SizedBox(height: 24),
+          ],
+
           // API Key
           Text(
             'API Key',
@@ -255,7 +272,7 @@ class _ProviderDetailScreenState extends State<ProviderDetailScreen> {
           ),
           const SizedBox(height: 8),
           DropdownButtonFormField<String>(
-            value: _selectedModel,
+            initialValue: widget.provider.defaultModels.first,
             isExpanded: true,
             decoration: const InputDecoration(),
             items: [

@@ -27,12 +27,26 @@ class AiProvider {
     this.api = "",
   });
 
+  static const localprovider = AiProvider(
+    id: 'local-provider',
+    name: 'Local Provider',
+    description: 'Local provider with OpenAI completions',
+    icon: Icons.chat,
+    color: Color(0xFF10A37F),
+    baseUrl: 'http://127.0.0.1:8910/v1',
+    defaultModels: [
+      'Qwen2.0-7B-SSD',
+    ],
+    apiKeyHint: 'sk-...',
+    api: 'openai-completions',
+  );
+
   static const alibabadashscope = AiProvider(
     id: 'alibaba',
     name: 'Alibaba DashScope',
     description:
         'Alibaba DashScope apiKey get from https://dashscope.console.aliyun.com/apiKey, Login with Taobao account',
-    icon: Icons.chat,
+    icon: Icons.category,
     color: Color(0xFF10A37F),
     baseUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
     defaultModels: [
@@ -55,7 +69,7 @@ class AiProvider {
     name: 'Qwen Auth',
     description:
         'Qwen Auth is a free service that provides access to Alibaba DashScope models with a simple token. No Taobao account required, but tokens are rate-limited and may expire.',
-    icon: Icons.chat,
+    icon: Icons.cell_tower,
     color: Color(0xFF10A37F),
     baseUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
     defaultModels: ['qwen-turbo', 'qwen-plus'],
@@ -176,6 +190,7 @@ class AiProvider {
 
   /// All available AI providers.
   static const all = [
+    localprovider,
     alibabadashscope,
     qwenauth,
     anthropic,

@@ -71,7 +71,8 @@ class _ProvidersScreenState extends State<ProvidersScreen> {
           builder: (_) => ProviderDetailScreen(
             provider: provider,
             existingApiKey: providerConfig?['apiKey'] as String?,
-            existingModel: _activeModel,
+            existingModel:
+                _activeModel!.contains(provider.id) ? _activeModel : null,
           ),
         ),
       );

@@ -29,7 +29,7 @@ if (localPropertiesFile.exists()) {
 
 def sdkVersion = localProperties.getProperty("sdk.version")
 if (sdkVersion == null) {
-    sdkVersion = "36.1.0"
+    sdkVersion = "36"
 }
 
 def ndkVersion = localProperties.getProperty("flutter.ndkVersion")
